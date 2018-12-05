@@ -4,6 +4,7 @@ import simplejson as json
 import requests
 import logging as log
 import os
+from os.path import expandvars
 import sys
 
 
@@ -160,10 +161,10 @@ class EventsResource:
     def _send_events(self):
         payload = {
             'icon': self.icon,
-            'message': self.message,
+            'message': expandvars(self.message),
             'severity': self.severity,
             'tags': self.tags,
-            'title': self.title,
+            'title': expandvars(self.title),
             'type': self.type
         }
         headers = {
