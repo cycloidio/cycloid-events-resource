@@ -1,7 +1,7 @@
 FROM python:3-alpine
 
 RUN apk update && \
-   apk --no-cache add ca-certificates git bash wget unzip
+   apk --no-cache add ca-certificates bash
 
 # install requirements
 ADD requirements*.txt ./
