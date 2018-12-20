@@ -6,6 +6,7 @@ import logging as log
 import os
 from os.path import expandvars
 import sys
+import yaml
 from distutils.util import strtobool
 
 
@@ -30,6 +31,7 @@ class EventsResource:
         self.organization = None
         self.icon = None
         self.message = None
+        self.vars_file = None
         self.fail_on_error = False
         self.severity = None
         self.tags = None
@@ -134,7 +136,12 @@ class EventsResource:
         self._check_params('type', merge)
         self._check_params('tags', merge)
         self._check_params('fail_on_error', merge, default=False)
+        self._check_params('vars_file', merge, default=None)
 
+        if self.vars_file is not None:
+            self._load_vars_file()
+
+        log.debug('environment: %s', os.environ)
         self._send_events()
 
         metadata = []
@@ -147,6 +154,23 @@ class EventsResource:
             'version': {'timestamp': '0'},
             'metadata': metadata,
         }
+
+    def _load_vars_file(self):
+        log.debug("Loading vars from %s" % self.vars_file)
+        try:
+            with open(self.vars_file, "r") as f:
+                variables = yaml.load(f)
+        except Exception as e:
+            log.error("Unable to load vars from file %s : %s" % (self.vars_file, e))
+            exit(1)
+
+        if type(variables) is not dict:
+            return
+
+        for variable, value in variables.items():
+            log.debug("set env var %s=%s" % (variable, value))
+            os.environ[variable] = value
+
 
     def _merge_source_params(self, source, params):
         merge = source.copy()
