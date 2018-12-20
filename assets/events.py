@@ -5,6 +5,7 @@ import requests
 import logging as log
 import os
 from os.path import expandvars
+from os.path import join as pjoin
 import sys
 import yaml
 from distutils.util import strtobool
@@ -144,10 +145,10 @@ class EventsResource:
             log.error("message or message_file params have to be defined")
             exit(1)
         elif not self.message and self.message_file:
-            self._load_message_from_file()
+            self._load_message_from_file(target_dir)
 
         if self.vars_file is not None:
-            self._load_vars_file()
+            self._load_vars_file(target_dir)
 
         log.debug('environment: %s', os.environ)
         self._send_events()
@@ -163,19 +164,19 @@ class EventsResource:
             'metadata': metadata,
         }
 
-    def _load_message_from_file(self):
+    def _load_message_from_file(self, target_dir):
         log.debug("Loading message from file %s" % self.message_file)
         try:
-            with open(self.message_file, "r") as f:
+            with open(pjoin(target_dir, self.message_file), "r") as f:
                 self.message = f.read()
         except Exception as e:
             log.error("Unable to read message from file %s : %s" % (self.message_file, e))
             exit(1)
 
-    def _load_vars_file(self):
+    def _load_vars_file(self, target_dir):
         log.debug("Loading vars from %s" % self.vars_file)
         try:
-            with open(self.vars_file, "r") as f:
+            with open(pjoin(target_dir, self.vars_file), "r") as f:
                 variables = yaml.load(f)
         except Exception as e:
             log.error("Unable to load vars from file %s : %s" % (self.vars_file, e))
