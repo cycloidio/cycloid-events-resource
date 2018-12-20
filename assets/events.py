@@ -32,6 +32,7 @@ class EventsResource:
         self.icon = None
         self.message = None
         self.vars_file = None
+        self.message_file = None
         self.fail_on_error = False
         self.severity = None
         self.tags = None
@@ -130,13 +131,20 @@ class EventsResource:
 
         merge = self._merge_source_params(source, params)
         self._check_params('icon', merge)
-        self._check_params('message', merge)
+        self._check_params('message', merge, False)
+        self._check_params('message_file', merge, False)
         self._check_params('severity', merge)
         self._check_params('title', merge)
         self._check_params('type', merge)
         self._check_params('tags', merge)
         self._check_params('fail_on_error', merge, default=False)
         self._check_params('vars_file', merge, default=None)
+
+        if not self.message and not self.message_file:
+            log.error("message or message_file params have to be defined")
+            exit(1)
+        elif not self.message and self.message_file:
+            self._load_message_from_file()
 
         if self.vars_file is not None:
             self._load_vars_file()
@@ -154,6 +162,15 @@ class EventsResource:
             'version': {'timestamp': '0'},
             'metadata': metadata,
         }
+
+    def _load_message_from_file(self):
+        log.debug("Loading message from file %s" % self.message_file)
+        try:
+            with open(self.message_file, "r") as f:
+                self.message = f.read()
+        except Exception as e:
+            log.error("Unable to read message from file %s : %s" % (self.message_file, e))
+            exit(1)
 
     def _load_vars_file(self):
         log.debug("Loading vars from %s" % self.vars_file)
