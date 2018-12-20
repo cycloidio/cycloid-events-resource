@@ -44,6 +44,8 @@ All optional values below, if specified in the source, will act as a default val
 
 * `message`: *Optional*. The message in the event body
 
+* `fail_on_error`: *Optional*. If true, the resource will fail if the Cycloid event API return an error. Default false (True values are y, yes, t, true, on and 1; false values are n, no, f, false, off and 0).
+
 * `tags`: *Optional*. The tags allow filtering
     Example:
     ```
@@ -84,6 +86,8 @@ Send the event to Cycloid API with the desired parameters.
 * `title`: *Optional*. The title of the event
 
 * `message`: *Optional*. The message in the event body
+
+* `fail_on_error`: *Optional*. If true, the resource will fail if the Cycloid event API return an error. Default false (True values are y, yes, t, true, on and 1; false values are n, no, f, false, off and 0).
 
 * `tags`: *Optional*. The tags allow filtering
     Example:

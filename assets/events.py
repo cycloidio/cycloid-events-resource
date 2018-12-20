@@ -6,6 +6,7 @@ import logging as log
 import os
 from os.path import expandvars
 import sys
+from distutils.util import strtobool
 
 
 class EventsResource:
@@ -29,6 +30,7 @@ class EventsResource:
         self.organization = None
         self.icon = None
         self.message = None
+        self.fail_on_error = False
         self.severity = None
         self.tags = None
         self.title = None
@@ -131,6 +133,7 @@ class EventsResource:
         self._check_params('title', merge)
         self._check_params('type', merge)
         self._check_params('tags', merge)
+        self._check_params('fail_on_error', merge, default=False)
 
         self._send_events()
 
@@ -151,8 +154,10 @@ class EventsResource:
 
         return merge
 
-    def _check_params(self, name, location):
-        if name not in location:
+    def _check_params(self, name, location, default=None):
+        if name not in location and default is not None:
+            setattr(self, name, default)
+        elif name not in location:
             log.error("%s must exist in the configuration" % name)
             exit(1)
         else:
@@ -174,6 +179,9 @@ class EventsResource:
 
         r = requests.post('%s/organizations/%s/events' % (self.api_url, self.organization), data=json.dumps(payload), headers=headers)
         log.debug(r.text)
+        if r.status_code != 201 and strtobool(self.fail_on_error):
+            log.error("Unable to send event : %s" % r.text)
+            exit(1)
 
 
     def _login(self):
