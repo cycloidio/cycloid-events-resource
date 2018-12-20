@@ -5,7 +5,10 @@ import requests
 import logging as log
 import os
 from os.path import expandvars
+from os.path import join as pjoin
 import sys
+import yaml
+from distutils.util import strtobool
 
 
 class EventsResource:
@@ -29,6 +32,9 @@ class EventsResource:
         self.organization = None
         self.icon = None
         self.message = None
+        self.vars_file = None
+        self.message_file = None
+        self.fail_on_error = False
         self.severity = None
         self.tags = None
         self.title = None
@@ -126,12 +132,25 @@ class EventsResource:
 
         merge = self._merge_source_params(source, params)
         self._check_params('icon', merge)
-        self._check_params('message', merge)
+        self._check_params('message', merge, False)
+        self._check_params('message_file', merge, False)
         self._check_params('severity', merge)
         self._check_params('title', merge)
         self._check_params('type', merge)
         self._check_params('tags', merge)
+        self._check_params('fail_on_error', merge, default=False)
+        self._check_params('vars_file', merge, default=None)
 
+        if not self.message and not self.message_file:
+            log.error("message or message_file params have to be defined")
+            exit(1)
+        elif not self.message and self.message_file:
+            self._load_message_from_file(target_dir)
+
+        if self.vars_file is not None:
+            self._load_vars_file(target_dir)
+
+        log.debug('environment: %s', os.environ)
         self._send_events()
 
         metadata = []
@@ -145,14 +164,42 @@ class EventsResource:
             'metadata': metadata,
         }
 
+    def _load_message_from_file(self, target_dir):
+        log.debug("Loading message from file %s" % self.message_file)
+        try:
+            with open(pjoin(target_dir, self.message_file), "r") as f:
+                self.message = f.read()
+        except Exception as e:
+            log.error("Unable to read message from file %s : %s" % (self.message_file, e))
+            exit(1)
+
+    def _load_vars_file(self, target_dir):
+        log.debug("Loading vars from %s" % self.vars_file)
+        try:
+            with open(pjoin(target_dir, self.vars_file), "r") as f:
+                variables = yaml.load(f)
+        except Exception as e:
+            log.error("Unable to load vars from file %s : %s" % (self.vars_file, e))
+            exit(1)
+
+        if type(variables) is not dict:
+            return
+
+        for variable, value in variables.items():
+            log.debug("set env var %s=%s" % (variable, value))
+            os.environ[variable] = value
+
+
     def _merge_source_params(self, source, params):
         merge = source.copy()
         merge.update(params)
 
         return merge
 
-    def _check_params(self, name, location):
-        if name not in location:
+    def _check_params(self, name, location, default=None):
+        if name not in location and default is not None:
+            setattr(self, name, default)
+        elif name not in location:
             log.error("%s must exist in the configuration" % name)
             exit(1)
         else:
@@ -174,6 +221,9 @@ class EventsResource:
 
         r = requests.post('%s/organizations/%s/events' % (self.api_url, self.organization), data=json.dumps(payload), headers=headers)
         log.debug(r.text)
+        if r.status_code != 201 and strtobool(self.fail_on_error):
+            log.error("Unable to send event : %s" % r.text)
+            exit(1)
 
 
     def _login(self):

@@ -24,14 +24,14 @@ resource_types:
 
 All optional values below, if specified in the source, will act as a default value until it's overrided by the params configuration.
 
-* `api_url`: *Required.* The url of the Cycloid DevOps Platform API
+* `api_url`: *Required.* The url of the Cycloid DevOps Platform API.
     Example: `https://http-api.cycloid.io`
 
-* `api_login`: *Required*. The login of the account you will use to store those events
+* `api_login`: *Required*. The login of the account you will use to store those events.
 
-* `api_password`: *Required*. The password of the account declared above
+* `api_password`: *Required*. The password of the account declared above.
 
-* `organization`: *Required*. The organization where you will store the events
+* `organization`: *Required*. The organization where you will store the events.
 
 * `type`: *Optional*. The type of the event. Currently, only `Cycloid`, `Custom`, `AWS` or `Monitoring` are allowed.
 
@@ -40,11 +40,17 @@ All optional values below, if specified in the source, will act as a default val
 * `icon`: *Optional*. Icon to display. The icons are the ones from Font Awesome.
     Example: `fa-cubes`
 
-* `title`: *Optional*. The title of the event
+* `title`: *Optional*. The title of the event.
 
-* `message`: *Optional*. The message in the event body
+* `message`: *Optional*. The message in the event body.
 
-* `tags`: *Optional*. The tags allow filtering
+* `message_file`: *Optional*. File path which contain the message for event body.
+
+* `fail_on_error`: *Optional*. If true, the resource will fail if the Cycloid event API return an error. Default false (True values are y, yes, t, true, on and 1; false values are n, no, f, false, off and 0).
+
+* `vars_file`: *Optional*. Load vars from a file that you can use in event message or title. format `MYKEY: value` usage `my title containing vars $MYKEY`.
+
+* `tags`: *Optional*. The tags allow filtering.
     Example:
     ```
     tags:
@@ -71,21 +77,27 @@ Send the event to Cycloid API with the desired parameters.
 #### Parameters
 
  ```
- /!\ Those parameters are *Required* if they aren't defined yet in the Source configuration /!\
+ /!\ *Required* parameters can be defined here or in the Source configuration /!\
  ```
 
-* `type`: *Optional*. The type of the event. Currently, only `Cycloid`, `Custom`, `AWS` or `Monitoring` are allowed.
+* `type`: *Required*. The type of the event. Currently, only `Cycloid`, `Custom`, `AWS` or `Monitoring` are allowed.
 
-* `severity`: *Optional*. The severity of the event. Currently, only `info`, `warn`, `err` or `crit` are allowed.
+* `severity`: *Required*. The severity of the event. Currently, only `info`, `warn`, `err` or `crit` are allowed.
 
-* `icon`: *Optional*. Icon to display. The icons are the ones from Font Awesome.
+* `icon`: *Required*. Icon to display. The icons are the ones from Font Awesome.
     Example: `fa-cubes`
 
-* `title`: *Optional*. The title of the event
+* `title`: *Required*. The title of the event.
 
-* `message`: *Optional*. The message in the event body
+* `message`: *Optional*. The message in the event body. (required `message` or `message_file` to be defined).
 
-* `tags`: *Optional*. The tags allow filtering
+* `message_file`: *Optional*. File path which contain the message for event body.
+
+* `fail_on_error`: *Optional*. If true, the resource will fail if the Cycloid event API return an error. Default false (True values are y, yes, t, true, on and 1; false values are n, no, f, false, off and 0).
+
+* `vars_file`: *Optional*. Load vars from a file that you can use in event message or title. format `MYKEY: value` usage `my title containing vars $MYKEY`.
+
+* `tags`: *Required*. The tags allow filtering.
     Example:
     ```
     tags:
