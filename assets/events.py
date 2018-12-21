@@ -139,7 +139,7 @@ class EventsResource:
         self._check_params('type', merge)
         self._check_params('tags', merge)
         self._check_params('fail_on_error', merge, default=False)
-        self._check_params('vars_file', merge, default=None)
+        self._check_params('vars_file', merge, default=False)
 
         if not self.message and not self.message_file:
             log.error("message or message_file params have to be defined")
@@ -147,7 +147,7 @@ class EventsResource:
         elif not self.message and self.message_file:
             self._load_message_from_file(target_dir)
 
-        if self.vars_file is not None:
+        if self.vars_file:
             self._load_vars_file(target_dir)
 
         log.debug('environment: %s', os.environ)
