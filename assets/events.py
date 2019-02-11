@@ -236,7 +236,8 @@ class EventsResource:
             self.token = r.json().get('data').get('token')
         except:
             log.error("There is an error on login, please check your configuration")
-            exit(1)
+            if strtobool(self.fail_on_error):
+                exit(1)
 
     def run(self):
         """Parse input/arguments, perform requested command return output."""
