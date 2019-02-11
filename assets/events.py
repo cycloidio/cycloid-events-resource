@@ -221,9 +221,12 @@ class EventsResource:
 
         r = requests.post('%s/organizations/%s/events' % (self.api_url, self.organization), data=json.dumps(payload), headers=headers)
         log.debug(r.text)
-        if r.status_code != 201 and strtobool(self.fail_on_error):
+        if r.status_code != 201:
             log.error("Unable to send event : %s" % r.text)
-            exit(1)
+            if strtobool(self.fail_on_error):
+                exit(1)
+            else:
+                exit(0)
 
 
     def _login(self):
@@ -238,6 +241,8 @@ class EventsResource:
             log.error("There is an error on login, please check your configuration")
             if strtobool(self.fail_on_error):
                 exit(1)
+            else:
+                exit(0)
 
     def run(self):
         """Parse input/arguments, perform requested command return output."""
