@@ -34,7 +34,7 @@ class EventsResource:
         self.message = None
         self.vars_file = None
         self.message_file = None
-        self.fail_on_error = False
+        self.fail_on_error = None
         self.severity = None
         self.tags = None
         self.title = None
@@ -138,7 +138,7 @@ class EventsResource:
         self._check_params('title', merge)
         self._check_params('type', merge)
         self._check_params('tags', merge)
-        self._check_params('fail_on_error', merge, default=False)
+        self._check_params('fail_on_error', merge, default='False')
         self._check_params('vars_file', merge, default=False)
 
         if not self.message and not self.message_file:
