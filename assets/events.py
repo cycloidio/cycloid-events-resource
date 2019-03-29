@@ -142,8 +142,7 @@ class EventsResource:
         self._check_params('vars_file', merge, default=False)
 
         if not self.message and not self.message_file:
-            log.error("message or message_file params have to be defined")
-            exit(1)
+            self._panic("message or message_file params have to be defined")
         elif not self.message and self.message_file:
             self._load_message_from_file(target_dir)
 
@@ -164,14 +163,22 @@ class EventsResource:
             'metadata': metadata,
         }
 
+    def _panic(self, message):
+        log.error(message)
+        if strtobool(self.fail_on_error):
+            print('{}')
+            exit(1)
+        else:
+            print('{}')
+            exit(0)
+
     def _load_message_from_file(self, target_dir):
         log.debug("Loading message from file %s" % self.message_file)
         try:
             with open(pjoin(target_dir, self.message_file), "r") as f:
                 self.message = f.read()
         except Exception as e:
-            log.error("Unable to read message from file %s : %s" % (self.message_file, e))
-            exit(1)
+            self._panic("Unable to read message from file %s : %s" % (self.message_file, e))
 
     def _load_vars_file(self, target_dir):
         log.debug("Loading vars from %s" % self.vars_file)
@@ -179,8 +186,7 @@ class EventsResource:
             with open(pjoin(target_dir, self.vars_file), "r") as f:
                 variables = yaml.load(f)
         except Exception as e:
-            log.error("Unable to load vars from file %s : %s" % (self.vars_file, e))
-            exit(1)
+            self._panic("Unable to load vars from file %s : %s" % (self.vars_file, e))
 
         if type(variables) is not dict:
             return
@@ -200,8 +206,7 @@ class EventsResource:
         if name not in location and default is not None:
             setattr(self, name, default)
         elif name not in location:
-            log.error("%s must exist in the configuration" % name)
-            exit(1)
+            self._panic("%s must exist in the configuration" % name)
         else:
             setattr(self, name, location.get(name))
 
@@ -222,11 +227,7 @@ class EventsResource:
         r = requests.post('%s/organizations/%s/events' % (self.api_url, self.organization), data=json.dumps(payload), headers=headers)
         log.debug(r.text)
         if r.status_code != 201:
-            log.error("Unable to send event : %s" % r.text)
-            if strtobool(self.fail_on_error):
-                exit(1)
-            else:
-                exit(0)
+            self._panic("Unable to send event : %s" % r.text)
 
 
     def _login(self):
@@ -235,14 +236,15 @@ class EventsResource:
         headers = {'content-type': 'application/vnd.cycloid.io.v1+json'}
 
         try:
+            # Get user token
             r = requests.post('%s/user/login' % (self.api_url), data=json.dumps(payload), headers=headers)
+            user_token = r.json().get('data').get('token')
+            # Get org token
+            headers['Authorization'] = 'Bearer %s' % user_token
+            r = requests.get('%s/user/refresh_token?organization_canonical=%s' % (self.api_url, self.organization), headers=headers)
             self.token = r.json().get('data').get('token')
         except:
-            log.error("There is an error on login, please check your configuration")
-            if strtobool(self.fail_on_error):
-                exit(1)
-            else:
-                exit(0)
+            self._panic("There is an error on login, please check your configuration")
 
     def run(self):
         """Parse input/arguments, perform requested command return output."""
