@@ -259,6 +259,7 @@ class EventsResource:
         self._check_params('api_login', source)
         self._check_params('api_password', source)
         self._check_params('organization', source)
+        self._check_params('fail_on_error', source, default='False')
 
         self._login()
 
