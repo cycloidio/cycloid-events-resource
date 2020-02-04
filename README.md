@@ -1,7 +1,7 @@
 # Cycloid Events Resource
 
-Send and receive events to/from [Cycloid DevOps platform](https://www.cycloid.io/devops-platform-with-ci-cd-container-pipeline)
-Our platform has an Event endpoint in order to have a unique entrypoint to store and retrieve events in a centralized way.
+Send and receive events to/from [Cycloid DevOps framework](https://www.cycloid.io/devops-framework)
+Our framework has an Event endpoint in order to have a unique entrypoint to store and retrieve events in a centralized way.
 By storing some events directly from the pipeline, you are able to give some visibility to important steps, but also store indefinitely an event like a production deployment.
 
 ## Deploying to Concourse
