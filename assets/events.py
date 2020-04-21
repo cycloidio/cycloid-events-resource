@@ -226,7 +226,7 @@ class EventsResource:
 
         r = requests.post('%s/organizations/%s/events' % (self.api_url, self.organization), data=json.dumps(payload), headers=headers)
         log.debug(r.text)
-        if r.status_code != 201:
+        if r.status_code != 200:
             self._panic("Unable to send event : %s" % r.text)
 
 
