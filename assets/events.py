@@ -24,11 +24,9 @@ class EventsResource:
         self.command_argument = command_argument
         # Namespace the approval lock
         self.data = json.loads(json_data)
-        self.token = None
 
         self.api_url = None
-        self.api_login = None
-        self.api_password = None
+        self.api_key = None
         self.organization = None
         self.icon = None
         self.message = None
@@ -221,7 +219,7 @@ class EventsResource:
         }
         headers = {
             'content-type': 'application/vnd.cycloid.io.v1+json',
-            'Authorization':'Bearer %s' % self.token
+            'Authorization':'Bearer %s' % self.api_key
         }
 
         r = requests.post('%s/organizations/%s/events' % (self.api_url, self.organization), data=json.dumps(payload), headers=headers)
@@ -229,22 +227,6 @@ class EventsResource:
         if r.status_code != 200:
             self._panic("Unable to send event : %s" % r.text)
 
-
-    def _login(self):
-        # Login with informations
-        payload = {'email': self.api_login, 'password': self.api_password}
-        headers = {'content-type': 'application/vnd.cycloid.io.v1+json'}
-
-        try:
-            # Get user token
-            r = requests.post('%s/user/login' % (self.api_url), data=json.dumps(payload), headers=headers)
-            user_token = r.json().get('data').get('token')
-            # Get org token
-            headers['Authorization'] = 'Bearer %s' % user_token
-            r = requests.get('%s/user/refresh_token?organization_canonical=%s' % (self.api_url, self.organization), headers=headers)
-            self.token = r.json().get('data').get('token')
-        except:
-            self._panic("There is an error on login, please check your configuration")
 
     def run(self):
         """Parse input/arguments, perform requested command return output."""
@@ -256,12 +238,9 @@ class EventsResource:
 
         # Ensure we are receiving the required parameters on the configuration
         self._check_params('api_url', source)
-        self._check_params('api_login', source)
-        self._check_params('api_password', source)
+        self._check_params('api_key', source)
         self._check_params('organization', source)
         self._check_params('fail_on_error', source, default='False')
-
-        self._login()
 
         # Define which operation to perform
         if self.command_name == 'check':
