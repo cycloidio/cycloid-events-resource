@@ -27,9 +27,7 @@ All optional values below, if specified in the source, will act as a default val
 * `api_url`: *Required.* The url of the Cycloid DevOps Platform API.
     Example: `https://http-api.cycloid.io`
 
-* `api_login`: *Required*. The login of the account you will use to store those events.
-
-* `api_password`: *Required*. The password of the account declared above.
+* `api_key`: *Required*. The Cycloid API key you will use to send those events.
 
 * `organization`: *Required*. The organization where you will store the events.
 
