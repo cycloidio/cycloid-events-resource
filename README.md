@@ -18,6 +18,27 @@ resource_types:
   source:
     repository: cycloid/cycloid-events-resource
     tag: latest
+- name: cycloid-events
+  type: cycloid-events
+  source:
+    api_key: ((custom_api-key-admin.key))
+    api_url: 'https://http-api.cycloid.io'
+    icon: fa-code-branch
+    organization: cycloid-sandbox
+    type: Custom
+
+jobs:
+  - name: test
+    plan:
+        ...
+        on_success:
+          do:
+            - params:
+                message: |
+                  Unit test success in $BUILD_PIPELINE_NAME for $BUILD_NAME
+                severity: info
+                title: $BUILD_PIPELINE_NAME - Unit test success
+              put: cycloid-events
 ```
 
 ## Source Configuration
