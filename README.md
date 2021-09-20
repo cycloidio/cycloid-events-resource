@@ -18,6 +18,8 @@ resource_types:
   source:
     repository: cycloid/cycloid-events-resource
     tag: latest
+
+resources:
 - name: cycloid-events
   type: cycloid-events
   source:
