@@ -8,8 +8,24 @@ from os.path import expandvars
 from os.path import join as pjoin
 import sys
 import yaml
-from distutils.util import strtobool
 
+
+# Replace distutils.util deprecation
+# https://www.python.org/dev/peps/pep-0632/
+def strtobool (val):
+    """Convert a string representation of truth to true (1) or false (0).
+
+    True values are 'y', 'yes', 't', 'true', 'on', and '1'; false values
+    are 'n', 'no', 'f', 'false', 'off', and '0'.  Raises ValueError if
+    'val' is anything else.
+    """
+    val = val.lower()
+    if val in ('y', 'yes', 't', 'true', 'on', '1'):
+        return 1
+    elif val in ('n', 'no', 'f', 'false', 'off', '0'):
+        return 0
+    else:
+        raise ValueError("invalid truth value %r" % (val,))
 
 class EventsResource:
     """
@@ -182,7 +198,7 @@ class EventsResource:
         log.debug("Loading vars from %s" % self.vars_file)
         try:
             with open(pjoin(target_dir, self.vars_file), "r") as f:
-                variables = yaml.load(f)
+                variables = yaml.safe_load(f)
         except Exception as e:
             self._panic("Unable to load vars from file %s : %s" % (self.vars_file, e))
 
