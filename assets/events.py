@@ -238,7 +238,7 @@ class EventsResource:
             'Authorization':'Bearer %s' % self.api_key
         }
 
-        r = requests.post('%s/organizations/%s/events' % (self.api_url, self.organization), data=json.dumps(payload), headers=headers)
+        r = requests.post('%s/organizations/%s/events' % (self.api_url, self.organization), data=json.dumps(payload), headers=headers, verify=False)
         log.debug(r.text)
         if r.status_code != 200:
             self._panic("Unable to send event : %s" % r.text)
